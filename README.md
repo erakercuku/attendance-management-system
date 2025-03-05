@@ -1,7 +1,7 @@
 # Attendance Management System
 
 ## Overview
-The Attendance Management System is developed and designed in such a way that helps to automate the process of tracking attendance using secure login credentials, facial recognition and optional QRcodes. The system includes permission based on the roles of the user to access the controls ensuring secure and efficient attendance logging, storage, and reporting.
+The Attendance Management System is developed and designed in such a way that it helps to automate the process of tracking the attendance using secure login credentials, facial recognition and optional QRcodes. The system includes permission based on the roles of the user to access the controls ensuring secure and efficient attendance logging, storage, and reporting.
 
 ## Features
 - Secure login credential registration
