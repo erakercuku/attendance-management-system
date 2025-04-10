@@ -16,17 +16,24 @@ std::string determineStatus(const std::string& checkIn, const std::string& check
 void recordAttendance() {
     std::string employeeId, date, checkIn, checkOut;
 
+    std::cout << "\n📋 Attendance Entry:\n";
     std::cout << "Enter Employee ID: ";
     std::getline(std::cin, employeeId);
 
     std::cout << "Enter Date (YYYY-MM-DD): ";
     std::getline(std::cin, date);
 
-    std::cout << "Enter Check-In Time (HH:MM, leave empty if absent): ";
+    std::cout << "Enter Check-In Time (HH:MM) or leave blank if absent: ";
     std::getline(std::cin, checkIn);
 
-    std::cout << "Enter Check-Out Time (HH:MM, leave empty if absent): ";
+    std::cout << "Enter Check-Out Time (HH:MM) or leave blank if absent: ";
     std::getline(std::cin, checkOut);
+
+    // Basic validation
+    if (employeeId.empty() || date.empty()) {
+        std::cerr << "❌ Employee ID and Date are required.\n";
+        return;
+    }
 
     std::string status = determineStatus(checkIn, checkOut);
 
