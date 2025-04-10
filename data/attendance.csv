@@ -1,1 +1,41 @@
+employee_id,date,check_in_time,check_out_time,status
+#include <iostream>
+#include <fstream>
+#include <string>
 
+// Function to determine attendance status
+std::string determineStatus(const std::string& checkIn, const std::string& checkOut) {
+    if (checkIn.empty() || checkOut.empty()) return "Absent";
+    if (checkIn > "09:15" && checkOut < "16:45") return "Partial";
+    if (checkIn > "09:15") return "Late";
+    if (checkOut < "16:45") return "Left Early";
+    return "Present";
+}
+
+// Function to record the attendance in CSV file
+void recordAttendance() {
+    std::string employeeId, date, checkIn, checkOut;
+
+    std::cout << "Enter Employee ID: ";
+    std::getline(std::cin, employeeId);
+
+    std::cout << "Enter Date (YYYY-MM-DD): ";
+    std::getline(std::cin, date);
+
+    std::cout << "Enter Check-In Time (HH:MM, leave empty if absent): ";
+    std::getline(std::cin, checkIn);
+
+    std::cout << "Enter Check-Out Time (HH:MM, leave empty if absent): ";
+    std::getline(std::cin, checkOut);
+
+    std::string status = determineStatus(checkIn, checkOut);
+
+    std::ofstream file("data/attendance.csv", std::ios::app);
+    if (file.is_open()) {
+        file << employeeId << "," << date << "," << checkIn << "," << checkOut << "," << status << "\n";
+        file.close();
+        std::cout << "✅ Attendance recorded successfully.\n";
+    } else {
+        std::cerr << "❌ Failed to open attendance.csv file.\n";
+    }
+}
