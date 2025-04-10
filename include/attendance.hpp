@@ -29,6 +29,26 @@ enum User_menu_opt
     USER_OPT_COUNT
 };
 
+struct DailyAttendance
+{
+    std::string loginTime;
+    std::string logoutTime;
+    std::string expectedLogin;
+    std::string expectedLogout;
+};
+
+// AttendanceRecord[date].DailyAttendance 
+using AttendanceRecord = std::map<std::string, DailyAttendance>;
+
+struct UserAttendance
+{
+    std::string username;
+    AttendanceRecord records;
+};
+
+// AttendanceContainer[username].UserAttendance 
+using AttendanceContainer = std::unordered_map<std::string, UserAttendance>;
+
 class Attendance
 {
 private:
