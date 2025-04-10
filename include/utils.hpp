@@ -22,9 +22,6 @@ constexpr size_t PASSWORD_MAX = 32;
 constexpr size_t PASSWORD_MIN = 8;
 
 // defines the Str_pair type 
-typedef std::pair<std::string, std::string> Str_pair;
-
-// defines the Attendance_vector type to load the attendance data 
-typedef std::vector<std::tuple<std::string, std::string, std::string>> Attendance_vector;
+using Str_pair = std::pair<std::string, std::string>;
 
 #endif
