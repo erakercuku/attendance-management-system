@@ -65,7 +65,7 @@ void User::create_account(void)
             break;
         }
     }
-    password = Auth::encrypt_password(inp_password);
+    password = Auth::hash_password(inp_password);
 
     Input::get("Roles:\n  1. Administrator\n  2. Manager\n  3. User\n"
                "Enter the number of the role that will be assigned to you: ", 
