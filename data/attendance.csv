@@ -2,9 +2,12 @@ employee_id,date,check_in_time,check_out_time,status
 #include <iostream>
 #include <fstream>
 #include <string>
+#include <regex>
+
+using namespace std;
 
 // Function to determine attendance status
-std:string determineStatus(const std:string& checkIn, const std:string& checkOut) {
+string determineStatus(const string& checkIn, const string& checkOut) {
     if (checkIn.empty() || checkOut.empty()) return "Absent";
     if (checkIn > "09:15" && checkOut < "16:45") return "Partial";
     if (checkIn > "09:15") return "Late";
@@ -12,37 +15,51 @@ std:string determineStatus(const std:string& checkIn, const std:string& checkOut
     return "Present";
 }
 
+// Check if time is valid HH:MM format and doesn't contain double colons
+bool isValidTimeFormat(const string& time) {
+    if (time.empty()) return true; // blank is allowed
+    if (time.find("::") != string::npos) return false; // reject if :: is found
+    regex pattern("^\\d{2}:\\d{2}$"); // must be HH:MM
+    return regex_match(time, pattern);
+}
+
 // Function to record the attendance in CSV file
 void recordAttendance() {
-    std::string employeeId, date, checkIn, checkOut;
+    string employeeId, date, checkIn, checkOut;
 
-    std::cout << "\n📋 Attendance Entry:\n";
-    std::cout << "Enter Employee ID: ";
-    std::getline(std::cin, employeeId);
+    cout << "\n Attendance Entry:\n";
+    cout << "Enter Employee ID: ";
+    getline(cin, employeeId);
 
-    std::cout << "Enter Date (YYYY-MM-DD): ";
-    std::getline(std::cin, date);
+    cout << "Enter Date (YYYY-MM-DD): ";
+    getline(cin, date);
 
-    std::cout << "Enter Check-In Time (HH:MM) or leave blank if absent: ";
-    std::getline(std::cin, checkIn);
+    cout << "Enter Check-In Time (HH:MM) or leave blank if absent: ";
+    getline(cin, checkIn);
 
-    std::cout << "Enter Check-Out Time (HH:MM) or leave blank if absent: ";
-    std::getline(std::cin, checkOut);
+    cout << "Enter Check-Out Time (HH:MM) or leave blank if absent: ";
+    getline(cin, checkOut);
 
-    // Basic validation
+    // Required field check
     if (employeeId.empty() || date.empty()) {
-        std::cerr << "❌ Employee ID and Date are required.\n";
+        cerr << "Employee ID and Date are required.\n";
         return;
     }
 
-    std::string status = determineStatus(checkIn, checkOut);
+    // Time format validation
+    if (!isValidTimeFormat(checkIn) || !isValidTimeFormat(checkOut)) {
+        cerr << "Invalid time format. Use HH:MM (e.g., 09:00) or leave blank.\n";
+        return;
+    }
 
-    std::ofstream file("data/attendance.csv", std::ios::app);
+    string status = determineStatus(checkIn, checkOut);
+
+    ofstream file("data/attendance.csv", ios::app);
     if (file.is_open()) {
         file << employeeId << "," << date << "," << checkIn << "," << checkOut << "," << status << "\n";
         file.close();
-        std::cout << "✅ Attendance recorded successfully.\n";
+        cout << "Attendance recorded successfully.\n";
     } else {
-        std::cerr << "❌ Failed to open attendance.csv file.\n";
+        cerr << "Failed to open data/attendance.csv\n";
     }
 }
