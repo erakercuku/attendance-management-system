@@ -4,7 +4,7 @@ employee_id,date,check_in_time,check_out_time,status
 #include <string>
 
 // Function to determine attendance status
-std::string determineStatus(const std::string& checkIn, const std::string& checkOut) {
+std:string determineStatus(const std:string& checkIn, const std:string& checkOut) {
     if (checkIn.empty() || checkOut.empty()) return "Absent";
     if (checkIn > "09:15" && checkOut < "16:45") return "Partial";
     if (checkIn > "09:15") return "Late";
