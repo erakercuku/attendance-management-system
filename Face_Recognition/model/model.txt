@@ -1,1 +1,2 @@
-model
+Model was too large, but can be uploaded from https://fex.net/ru/s/mkovpkv .
+Should be named arcface.onnx .
