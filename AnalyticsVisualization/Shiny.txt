@@ -1,1 +1,2 @@
 Shinyanalytics
+Run shiny::runApp() to innitialize
