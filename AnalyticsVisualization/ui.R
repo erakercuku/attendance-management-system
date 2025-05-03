@@ -9,7 +9,7 @@ ui <- navbarPage("Attendance Analytics Dashboard",
                               selectInput("trend_course", "Filter by Course", choices = NULL)  # dynamic update below
                             ),
                             mainPanel(
-                              plotOutput("attendance_trend_plot")
+                              plotlyOutput("attendance_trend_plot")
                             )
                           )
                  ),
@@ -23,7 +23,7 @@ ui <- navbarPage("Attendance Analytics Dashboard",
                               selectInput("heatmap_course", "Filter by Course", choices = NULL)
                             ),
                             mainPanel(
-                              plotOutput("activity_heatmap_plot")
+                              plotlyOutput("activity_heatmap_plot")
                             )
                           )
                  ),
@@ -43,7 +43,7 @@ ui <- navbarPage("Attendance Analytics Dashboard",
                                           selected = "All")
                             ),
                             mainPanel(
-                              plotOutput("role_plot")
+                              plotlyOutput("role_plot")
                             )
                           )
                  ),
@@ -70,7 +70,7 @@ ui <- navbarPage("Attendance Analytics Dashboard",
                                           min = 0, max = 100, value = 50, step = 5)
                             ),
                             mainPanel(
-                              plotOutput("eva_plot")
+                              plotlyOutput("eva_plot")
                             )
                           )
                  ),
@@ -83,7 +83,7 @@ ui <- navbarPage("Attendance Analytics Dashboard",
                               radioButtons("delay_group", "Group by:", choices = c("Daily" = "daily", "Weekly" = "weekly"), selected = "daily")
                             ),
                             mainPanel(
-                              plotOutput("delay_trend_plot")
+                              plotlyOutput("delay_trend_plot")
                             )
                           )
                  ),
@@ -95,7 +95,7 @@ ui <- navbarPage("Attendance Analytics Dashboard",
                               radioButtons("avgdelay_by", "Group By:", choices = c("Course" = "course", "Module" = "module"), selected = "course")
                             ),
                             mainPanel(
-                              plotOutput("avgdelay_plot")
+                              plotlyOutput("avgdelay_plot")
                             )
                           )
                  ),
@@ -116,7 +116,7 @@ ui <- navbarPage("Attendance Analytics Dashboard",
                               numericInput("modpop_n", "Number of Top Modules", value = 10, min = 1, max = length(unique(user_module_df$module_id)))
                             ),
                             mainPanel(
-                              plotOutput("modpop_plot")
+                              plotlyOutput("modpop_plot")
                             )
                           )
                  )
