@@ -3,7 +3,7 @@
 # Install required packages if missing
 required_packages <- c(
   "shiny", "shinydashboard", "dplyr", "ggplot2", "lubridate", "tidyr",
-  "ggthemes", "viridis", "reshape2", "scales", "plotly", "forcats"
+  "ggthemes", "viridis", "reshape2", "scales", "plotly", "forcats", "DT"
 )
 
 install_if_missing <- function(pkg) {
@@ -24,6 +24,7 @@ library(reshape2)
 library(scales)
 library(plotly)
 library(forcats)
+library(DT)
 
 
 # ------------------------------
