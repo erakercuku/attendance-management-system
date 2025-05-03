@@ -26,7 +26,7 @@ plot_attendance_trends <- function(start_date, end_date, course_filter = "none",
                              cols = c("CHECKIN", "CHECKOUT"),
                              names_to = "action", values_to = "count")
   
-  ggplot(trend_long, aes(x = date, y = count, color = action)) +
+  (ggplot(trend_long, aes(x = date, y = count, color = action)) +
     geom_line(size = 1.2) +
     geom_point() +
     labs(
@@ -39,7 +39,7 @@ plot_attendance_trends <- function(start_date, end_date, course_filter = "none",
     ) +
     theme_minimal() +
     scale_color_manual(values = c("CHECKIN" = "steelblue", "CHECKOUT" = "darkorange")) +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)))%>%ggplotly()
 }
 
 
@@ -66,7 +66,7 @@ plot_user_activity_heatmap <- function(start_date, end_date, course_filter = "no
       week = isoweek(date)
     )
   
-  ggplot(activity_df, aes(x = factor(week), y = fct_rev(weekday), fill = activity_count)) +
+  (ggplot(activity_df, aes(x = factor(week), y = fct_rev(weekday), fill = activity_count)) +
     geom_tile(color = "white") +
     scale_fill_viridis(name = "Activity", option = "C", direction = -1) +
     labs(
@@ -77,7 +77,7 @@ plot_user_activity_heatmap <- function(start_date, end_date, course_filter = "no
       y = "Weekday"
     ) +
     theme_minimal() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)))%>%ggplotly()
 }
 
 
@@ -114,7 +114,7 @@ plot_role_distribution <- function(data) {
     mutate(percentage = round(100 * n / sum(n), 1))
   
   # Plot
-  ggplot(role_summary, aes(x = reorder(roles, -n), y = n, fill = roles)) +
+  (ggplot(role_summary, aes(x = reorder(roles, -n), y = n, fill = roles)) +
     geom_bar(stat = "identity", width = 0.6) +
     geom_text(aes(label = paste0(percentage, "%")), vjust = -0.3) +
     labs(
@@ -124,7 +124,7 @@ plot_role_distribution <- function(data) {
       fill = "Role"
     ) +
     theme_minimal() +
-    scale_fill_manual(values = c("Admin" = "darkgreen", "User" = "steelblue", "Moderator" = "orange"))
+    scale_fill_manual(values = c("Admin" = "darkgreen", "User" = "steelblue", "Moderator" = "orange")))%>%ggplotly()
 }
 
 
@@ -230,7 +230,7 @@ plot_enrolled_vs_attended <- function(
                  names_to = "type", values_to = "count")
   
   # 7. Plot
-  ggplot(summary_df, aes(x = reorder(module_name, -count), y = count, fill = type)) +
+  (ggplot(summary_df, aes(x = reorder(module_name, -count), y = count, fill = type)) +
     geom_bar(stat = "identity", position = "dodge") +
     labs(
       title = paste(
@@ -248,7 +248,7 @@ plot_enrolled_vs_attended <- function(
       "enrolled" = "steelblue",
       "attended" = "orange",
       "active_attended" = "darkgreen"
-    ))
+    )))%>%ggplotly()
 }
 
 
@@ -300,7 +300,7 @@ plot_average_checkin_delay <- function(
     summarise(avg_delay = mean(delay_minutes), .groups = "drop")
   
   # Plot
-  ggplot(avg_delay_df, aes(x = group_date, y = avg_delay)) +
+  (ggplot(avg_delay_df, aes(x = group_date, y = avg_delay)) +
     geom_line(group = 1, color = "steelblue", size = 1.2) +
     geom_point(color = "darkorange", size = 2) +
     geom_hline(yintercept = 0, linetype = "dashed", color = "gray50") +
@@ -312,7 +312,7 @@ plot_average_checkin_delay <- function(
       y = "Avg Delay (min; negative = early)"
     ) +
     theme_minimal() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)))%>%ggplotly()
 }
 
 plot_avg_delay <- function(
@@ -365,7 +365,7 @@ plot_avg_delay <- function(
   }
   
   # Plot
-  ggplot(plot_df, aes(x = reorder(label, avg_delay), y = avg_delay, fill = avg_delay)) +
+  (ggplot(plot_df, aes(x = reorder(label, avg_delay), y = avg_delay, fill = avg_delay)) +
     geom_bar(stat = "identity", width = 0.6) +
     geom_text(aes(label = round(avg_delay, 1)), vjust = -0.5) +
     scale_fill_gradient2(low = "green", mid = "gray90", high = "firebrick", midpoint = 0) +
@@ -377,7 +377,7 @@ plot_avg_delay <- function(
       y = "Avg Delay (min; negative = early)"
     ) +
     theme_minimal() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none")
+    theme(axis.text.x = element_text(angle = 45, hjust = 1), legend.position = "none"))%>%ggplotly()
 }
 
 
@@ -424,7 +424,7 @@ plot_top_modules_by_enrollment <- function(enrollments_df, modules_df, N = 10) {
     head(N)
   
   # Plot
-  ggplot(top_modules, aes(x = reorder(module_name, num_enrolled), y = num_enrolled)) +
+  (ggplot(top_modules, aes(x = reorder(module_name, num_enrolled), y = num_enrolled)) +
     geom_bar(stat = "identity", fill = "steelblue") +
     geom_text(aes(label = num_enrolled), vjust = -0.3) +
     labs(
@@ -433,5 +433,5 @@ plot_top_modules_by_enrollment <- function(enrollments_df, modules_df, N = 10) {
       y = "Number of Enrolled Users"
     ) +
     theme_minimal() +
-    theme(axis.text.x = element_text(angle = 45, hjust = 1))
+    theme(axis.text.x = element_text(angle = 45, hjust = 1)))%>%ggplotly()
 }
