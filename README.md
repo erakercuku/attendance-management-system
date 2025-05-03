@@ -18,5 +18,5 @@ The Attendance Management System is developed and designed in such a way that it
 - Notifications for absences and exceptional cases
 
 ## Tech Stack
-- **Backend:** C++
+- **Backend:** C++, Python, R
 - **Database:** MySQL or MongoDBc
