@@ -51,3 +51,18 @@ ADD COLUMN entry_type ENUM('automatic', 'manual') DEFAULT 'automatic',
 ADD COLUMN modified_by CHAR(16),
 ADD COLUMN modified_at DATETIME,
 ADD FOREIGN KEY (modified_by) REFERENCES Users(id);
+
+CREATE TABLE ActionAuditLog (
+    audit_id INT AUTO_INCREMENT PRIMARY KEY,
+    user_id CHAR(16) NOT NULL,
+    module_id CHAR(8) NOT NULL,
+    action ENUM('CHECKIN', 'CHECKOUT') NOT NULL,
+    original_time DATETIME,
+    new_time DATETIME,
+    change_type ENUM('CREATE', 'UPDATE', 'DELETE') NOT NULL,
+    changed_by CHAR(16) NOT NULL,
+    changed_at DATETIME NOT NULL,
+    FOREIGN KEY (user_id) REFERENCES Users(id),
+    FOREIGN KEY (module_id) REFERENCES Modules(module_id),
+    FOREIGN KEY (changed_by) REFERENCES Users(id)
+);
