@@ -45,3 +45,9 @@ CREATE TABLE UserActions (
     FOREIGN KEY (id) REFERENCES Users(id),
     FOREIGN KEY (module_id) REFERENCES Modules(module_id)
 );
+
+ALTER TABLE UserActions
+ADD COLUMN entry_type ENUM('automatic', 'manual') DEFAULT 'automatic',
+ADD COLUMN modified_by CHAR(16),
+ADD COLUMN modified_at DATETIME,
+ADD FOREIGN KEY (modified_by) REFERENCES Users(id);
