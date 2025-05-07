@@ -1,14 +1,18 @@
 #include "utils.hpp"
 #include "user.hpp"
-#include "attendance.hpp"
+#include "authentication.hpp"
+#include "storage.hpp"
 #include "input.hpp"
 #include <iostream>
+#include <memory>
 #include <thread>
 #include <chrono>
 
 using std::cout;
 using std::cerr;
 using std::cin;
+
+AttendanceContainer attendance;
 
 int main(void)
 {
@@ -17,8 +21,7 @@ int main(void)
     std::string input, confirmation;
     size_t login_attempts = 0;
 
-    User user;
-    Attendance attendance(user);
+    std::unique_ptr<User> user = nullptr;
 
     cout << "Welcome to the Attendance Management System.\n";
 
@@ -35,13 +38,23 @@ int main(void)
         {
         case LOGIN:
         {
-            if (user.login())
+            user = Auth::login();
+
+            if (user)
             {
-                attendance = Attendance(user);
-                attendance.mark_attendance();
-                attendance.display_menu();
+                User* raw_user = insert_into_attendance(std::move(user));
+
+                raw_user->mark_attendance();
+                raw_user->display_menu();
 
                 login_attempts = 0;
+
+                while (!raw_user->logout())
+                {
+                    raw_user->display_menu();
+                }
+
+                Storage::save_attendance();
             }
             else
             {
@@ -50,18 +63,16 @@ int main(void)
                 {
                     cout << "Attempts remaining: " << (LOGIN_ATTEMPTS_MAX - login_attempts) << '\n';
                 }
+                else
+                {
+                    cout << "Too many failed login attempts. Please wait a few minutes before attempting again.";
+                    std::this_thread::sleep_for(std::chrono::minutes(2));
+                }
             }
-
-            if (login_attempts >= LOGIN_ATTEMPTS_MAX)
-            {
-                cout << "Too many failed login attempts. Please wait a few minutes before attempting again.";
-                std::this_thread::sleep_for(std::chrono::minutes(2));
-            }
-
             break;
         }
         case CREATE_ACCOUNT:
-            user.create_account();
+            user = Auth::create_account();
             break;
         
         case EXIT:
