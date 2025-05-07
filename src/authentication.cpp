@@ -1,9 +1,124 @@
 #include "authentication.hpp"
+#include "storage.hpp"
+#include "input.hpp"
+#include <iostream>
 #include <sstream>
 #include <vector>
 #include <iomanip>
 #include <cstring>
 #include <cstdint>
+
+using std::string;
+
+std::unique_ptr<User> Auth::login(void)
+{
+    string inp_username, inp_password;
+
+    Input::get("Enter your username: ", inp_username, USERNAME_MAX, Input::valid_username);
+
+    Input::get("Enter your password: ", inp_password, PASSWORD_MAX, Input::valid_password);
+
+    Str_pair stored_fullname;
+    string stored_password, stored_ID;
+    Roles stored_role;
+
+    if (Storage::load_user(inp_username, stored_fullname, stored_password, stored_ID, stored_role)
+        && Auth::verify_password(inp_password, stored_password))
+    {
+        std::unique_ptr<User> user;
+
+        switch (stored_role)
+        {
+        case ADMIN:
+            user = std::make_unique<Admin>(stored_fullname, inp_username, stored_password, stored_ID, ADMIN);
+            break;
+
+        case MANAGER:
+            user = std::make_unique<Manager>(stored_fullname, inp_username, stored_password, stored_ID, MANAGER);
+            break;
+
+        case USER:
+            user = std::make_unique<User>(stored_fullname, inp_username, stored_password, stored_ID, USER);
+            break;
+
+        default:
+            break;
+        }
+
+        std::cout << "Welcome " << stored_fullname.first << ".\n" 
+                  << "You have successfully logged in with " << user->get_role_name() << " priviliges.\n";
+
+        return user;
+    }
+
+    std::cout << "Invalid username or password.\n";
+    return nullptr;
+}
+
+std::unique_ptr<User> Auth::create_account(void)
+{
+    Str_pair fullname;
+    string username, password, ID, confirm_password, role_sel;
+    Roles role;
+    const int options = ROLES_COUNT - 1;
+
+    Input::get("Enter your first name: ", fullname.first, NAME_MAX, Input::valid_name);
+    Input::get("Enter your last name: ", fullname.second, NAME_MAX, Input::valid_name);
+
+    Input::get("Enter your username: ", username, USERNAME_MAX, Input::valid_username);
+
+    Input::get("Enter your password: ", password, PASSWORD_MAX, Input::valid_password);
+
+    while (true)
+    {
+        std::cout << "Confirm your password: ";
+        std::getline(std::cin, confirm_password);
+
+        if (password != confirm_password)
+        {
+            std::cout << "Please make sure the passwords match.\n";
+        }
+        else
+        {
+            std::cout << "Passwords match.\n";
+            break;
+        }
+    }
+    password = Auth::hash(password);
+    ID = Auth::hash(username);
+
+    Input::get("Roles:\n  1. Administrator\n  2. Manager\n  3. User\n"
+               "Enter the number of the role that will be assigned to you: ", 
+               role_sel, NUM_MAX, options, Input::valid_opt);
+
+    role = (Roles) std::stoi(role_sel);
+
+    std::unique_ptr<User> user;
+
+    switch (role)
+    {
+    case ADMIN:
+        user = std::make_unique<Admin>(fullname, username, password, ID, ADMIN);
+        break;
+
+    case MANAGER:
+        user = std::make_unique<Manager>(fullname, username, password, ID, MANAGER);
+        break;
+
+    case USER:
+        user = std::make_unique<User>(fullname, username, password, ID, USER);
+        break;
+
+    default:
+        break;
+    }
+
+    Storage::save_user(*user);
+
+    std::cout << "Your account has been created. You can now log in\n";
+
+    return user;
+}
 
 namespace
 {
@@ -29,9 +144,9 @@ namespace
 }
 
 
-std::string Auth::hash_password(const std::string &password)
+const std::string Auth::hash(const std::string &original)
 {
-    std::vector<uint8_t> data(password.begin(), password.end());
+    std::vector<uint8_t> data(original.begin(), original.end());
 
     uint64_t bit_len = data.size() * 8;
     data.push_back(0x80);
@@ -98,5 +213,5 @@ std::string Auth::hash_password(const std::string &password)
 
 bool Auth::verify_password(const std::string &inp_password, const std::string &hashed_password)
 {
-    return hash_password(inp_password) == hashed_password;
+    return hash(inp_password) == hashed_password;
 }
