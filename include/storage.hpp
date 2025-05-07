@@ -11,11 +11,14 @@ private:
 
 public:
     static bool save_user(const User &user);
-    static bool load_user(const std::string &inp_username, Str_pair &fullname, std::string &password, Roles &role);
-    static bool save_attendance(const std::string &username, std::time_t timestamp);
-    static bool load_attendance(Attendance_vector &attendance_logs);
+    static bool load_user(const std::string &inp_username, Str_pair &fullname, std::string &password, std::string &ID, Roles &role);
+    static bool save_user_attendance(const UserAttendance &user_att);
+    static bool load_user_attendance(UserAttendance &user_att);
 
-    static std::string time_to_str(std::time_t timestamp);
+    static bool save_all_users(void);
+    static bool load_all_users(void);
+    static bool save_attendance(void);
+    static bool load_attendance(void);
 };
 
 #endif
