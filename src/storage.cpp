@@ -1,10 +1,231 @@
 #include "storage.hpp"
 #include "authentication.hpp"
+#include <sqlite3.h>
+#include <memory>
 #include <iostream>
 #include <fstream>
 #include <sstream>
 #include <algorithm>
 #include <unordered_map>
+
+void Storage::save_user_to_db(const User &user)
+{
+    sqlite3* db;
+    sqlite3_open("ams.db", &db);
+    std::string sql = "INSERT INTO users (username, password, role) VALUES (?, ?, ?);";
+
+    sqlite3_stmt* stmt;
+    sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr);
+    sqlite3_bind_text(stmt, 1, user.get_username().c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 2, user.get_password().c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 3, user.get_role_name().c_str(), -1, SQLITE_STATIC);
+
+    sqlite3_step(stmt);
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+}
+
+bool Storage::load_user_from_db(const std::string &username, Str_pair &fullname, std::string &password, std::string &ID, Roles &role)
+{
+    sqlite3* db;
+    sqlite3_stmt* stmt;
+    bool found = false;
+
+    if (sqlite3_open("ams.db", &db) != SQLITE_OK)
+    {
+        std::cerr << "Failed to open database.\n";
+        return false;
+    }
+
+    const char* sql = "SELECT firstname, lastname, username, password, id, role FROM users WHERE username = ?;";
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+    {
+        std::cerr << "Failed to prepare statement.\n";
+        sqlite3_close(db);
+        return false;
+    }
+
+    sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_STATIC);
+
+    if (sqlite3_step(stmt) == SQLITE_ROW)
+    {
+        std::string fname = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+        std::string lname = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        std::string uname = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+        std::string pass = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+        std::string id    = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4));
+        std::string role_str = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 5));
+
+        fullname = {fname, lname};
+        password = pass;
+        ID = id;
+        role = static_cast<Roles>(std::stoi(role_str));
+        found = true;
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+
+    return found;
+}
+
+void Storage::load_users_from_db(void)
+{
+    sqlite3* db;
+    sqlite3_stmt* stmt;
+
+    if (sqlite3_open("ams.db", &db) != SQLITE_OK)
+    {
+        std::cerr << "Failed to open database.\n";
+        return;
+    }
+
+    const char* sql = "SELECT username, password, role FROM users;";
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+    {
+        std::cerr << "Failed to prepare user SELECT.\n";
+        sqlite3_close(db);
+        return;
+    }
+
+    users.clear();
+
+    while (sqlite3_step(stmt) == SQLITE_ROW)
+    {
+        std::string fname = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+        std::string lname = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        std::string uname = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+        std::string pass = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+        std::string id = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4));
+        std::string role_str = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 5));
+
+        Str_pair fullname;
+        fullname.first = fname;
+        fullname.second = lname;
+
+        Roles role = (Roles) std::stoi(role_str);
+    
+        switch (role)
+        {
+        case ADMIN:
+            users.push_back(std::make_unique<Manager>(fullname, uname, pass, id, ADMIN));
+            break;
+
+        case MANAGER:
+            users.push_back(std::make_unique<Manager>(fullname, uname, pass, id, MANAGER));
+            break;
+
+        case USER:
+            users.push_back(std::make_unique<Manager>(fullname, uname, pass, id, USER));
+            break;
+
+        default:
+            break;
+        }
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+}
+
+void Storage::save_attendance_to_db(void)
+{
+    sqlite3* db;
+    sqlite3_open("ams.db", &db);
+
+    const char* create_sql = R"(
+        CREATE TABLE IF NOT EXISTS attendance (
+            username TEXT,
+            date TEXT,
+            login_time TEXT,
+            logout_time TEXT,
+            expected_login TEXT,
+            expected_logout TEXT,
+            PRIMARY KEY(username, date)
+        );
+    )";
+    sqlite3_exec(db, create_sql, nullptr, nullptr, nullptr);
+
+    const char* insert_sql = R"(
+        INSERT INTO attendance (username, date, login_time, logout_time, expected_login, expected_logout)
+        VALUES (?, ?, ?, ?, ?, ?)
+        ON CONFLICT(username, date) DO UPDATE SET
+            login_time = excluded.login_time,
+            logout_time = excluded.logout_time,
+            expected_login = excluded.expected_login,
+            expected_logout = excluded.expected_logout;
+    )";
+
+    sqlite3_stmt* stmt;
+    sqlite3_prepare_v2(db, insert_sql, -1, &stmt, nullptr);
+
+    for (const auto &user_att : attendance)
+    {
+        const std::string &username = user_att.user->get_username();
+        for (const auto &[date, daily] : user_att.logs)
+        {
+            sqlite3_bind_text(stmt, 1, username.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_text(stmt, 2, date.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_text(stmt, 3, daily.login_time.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_text(stmt, 4, daily.logout_time.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_text(stmt, 5, daily.expected_login.c_str(), -1, SQLITE_STATIC);
+            sqlite3_bind_text(stmt, 6, daily.expected_logout.c_str(), -1, SQLITE_STATIC);
+
+            sqlite3_step(stmt);
+            sqlite3_reset(stmt);
+        }
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+}
+
+void Storage::load_attendance_from_db(void)
+{
+    sqlite3* db;
+    sqlite3_stmt* stmt;
+    sqlite3_open("ams.db", &db);
+
+    const char* sql = R"(
+        SELECT username, date, login_time, logout_time, expected_login, expected_logout FROM attendance;
+    )";
+
+    if (sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr) != SQLITE_OK)
+    {
+        std::cerr << "Failed to prepare attendance SELECT.\n";
+        sqlite3_close(db);
+        return;
+    }
+
+    while (sqlite3_step(stmt) == SQLITE_ROW)
+    {
+        std::string uname = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 0));
+        std::string date = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 1));
+        std::string login = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 2));
+        std::string logout = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 3));
+        std::string expected_login = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 4));
+        std::string expected_logout = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 5));
+
+        auto it = std::find_if(attendance.begin(), attendance.end(),
+            [&uname](const UserAttendance &ua) {
+                return ua.user->get_username() == uname;
+            });
+
+        if (it == attendance.end())
+        {
+            continue;
+        }
+
+        DailyAttendance &log = it->logs[date];
+        log.login_time = login;
+        log.logout_time = logout;
+        log.expected_login = expected_login;
+        log.expected_logout = expected_logout;
+    }
+
+    sqlite3_finalize(stmt);
+    sqlite3_close(db);
+}
 
 bool Storage::save_user(const User &user)
 {
@@ -125,12 +346,12 @@ bool Storage::load_all_users(void)
         std::istringstream ss(line);
         std::string role_str, id, username, fname, lname, password;
 
-        std::getline(ss, role_str, ',');
-        std::getline(ss, id, ',');
-        std::getline(ss, username, ',');
         std::getline(ss, fname, ',');
         std::getline(ss, lname, ',');
-        std::getline(ss, password);
+        std::getline(ss, username, ',');
+        std::getline(ss, password, ',');
+        std::getline(ss, id, ',');
+        std::getline(ss, role_str);
 
         Roles role = static_cast<Roles>(std::stoi(role_str));
         Str_pair fullname = {fname, lname};
@@ -154,12 +375,14 @@ bool Storage::load_all_users(void)
             continue;
         }
 
-        attendance.push_back(UserAttendance
-            {
-                std::move(user),
-                AttendanceRecord {}
-            }
-        );
+        // attendance.push_back(UserAttendance
+        //     {
+        //         std::move(user),
+        //         AttendanceRecord {}
+        //     }
+        // );
+
+        users.push_back(std::move(user));
     }
 
     return true;
@@ -218,4 +441,14 @@ bool Storage::load_attendance(void)
     }
 
     return true;
+}
+
+void Storage::save_qr_id_to_csv(const std::string &id)
+{
+    std::ofstream file(HASHED_ID_FILE);
+    if (!file) return;
+
+    file << id << "\n";
+
+    file.close();
 }
