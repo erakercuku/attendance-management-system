@@ -8,7 +8,7 @@ namespace fs = std::filesystem;
 
 int main() {
     string backupName;
-    cout << "\n🛠️ Restore Attendance\n";
+    cout << "\nRestore Attendance\n";
     cout << "Enter the backup file name (e.g., attendance_2025-04-10.csv): ";
     getline(cin, backupName);
 
