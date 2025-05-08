@@ -125,6 +125,10 @@ using AttendanceContainer = std::vector<UserAttendance>;
 
 extern AttendanceContainer attendance;
 
+using UserVector = std::vector<std::unique_ptr<User>>;
+
+extern UserVector users;
+
 User *insert_into_attendance(std::unique_ptr<User> user);
 
 #endif
