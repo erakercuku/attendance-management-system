@@ -1,6 +1,7 @@
 #include "input.hpp"
 #include "utils.hpp"
 #include "user.hpp"
+#include "storage.hpp"
 #include <iostream>
 #include <stdexcept>
 #include <cctype>
@@ -210,20 +211,12 @@ bool Input::valid_password(const std::string &password)
     return true;
 }
 
-
-bool Input::valid_role(const std::string &role)
+bool Input::is_username_unique(const std::string &username)
 {
-    if (role.empty())
+    for (const auto &user : users)
     {
-        cerr << "Invalid role. role can not be blank, please enter a valid role.\n";
-        return false;
+        if (user->get_username() == username) return false;
     }
-    if (isspace((unsigned char) role.at(0)))
-    {
-        cerr << "Invalid role. role can not start with a space, please enter a valid role.\n";
-        return false;
-    }
-    // add other conditions for specific role selection, etc. 
 
     return true;
 }
