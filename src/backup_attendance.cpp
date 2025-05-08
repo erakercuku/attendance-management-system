@@ -26,11 +26,11 @@ int main() {
 
     try {
         fs::copy_file(source, backupFile, fs::copy_options::overwrite_existing);
-        log << "✅ Backup successful: " << backupFile << "\n";
-        cout << "✅ Backup completed: " << backupFile << endl;
+        log << "Backup successful: " << backupFile << "\n";
+        cout << "Backup completed: " << backupFile << endl;
     } catch (fs::filesystem_error& e) {
-        log << "❌ Backup failed: " << e.what() << "\n";
-        cerr << "❌ Backup failed: " << e.what() << endl;
+        log << "Backup failed: " << e.what() << "\n";
+        cerr << "Backup failed: " << e.what() << endl;
     }
 
     log.close();
