@@ -8,13 +8,24 @@ import random
 import string
 
 
-def generate_random_id(length=16):
-    characters = string.ascii_uppercase + string.digits
-    return ''.join(random.choices(characters, k=length))
+# def generate_random_id(length=16):
+#     characters = string.ascii_uppercase + string.digits
+#     return ''.join(random.choices(characters, k=length))
 
+def get_id_from_csv():
+    try:
+        with open("hashed_id.csv", "r") as f:
+            id = f.readline().strip()
+            if len(id) != 16:
+                raise ValueError("Invalid ID length")
+            return id
+    except Exception as e:
+        print("Something has gone wrong. Could not read hashed ID from CSV.")
+        raise SystemExit(1)
 
 def generate_qr(name, surname, course, position):
-    random_id = generate_random_id()
+    # random_id = generate_random_id()
+    random_id = get_id_from_csv()
     data = f"{random_id},{name},{surname},{course},{position}"
     qr = qrcode.QRCode(
         version=1,
