@@ -21,9 +21,15 @@ std::unique_ptr<User> Auth::login(void)
     Str_pair stored_fullname;
     string stored_password, stored_ID;
     Roles stored_role;
+    bool user_exists = false;
 
-    if (Storage::load_user(inp_username, stored_fullname, stored_password, stored_ID, stored_role)
-        && Auth::verify_password(inp_password, stored_password))
+    #ifdef CSV_VER
+        user_exists = Storage::load_user(inp_username, stored_fullname, stored_password, stored_ID, stored_role);
+    #else
+        user_exists = Storage::load_user_from_db(inp_username, stored_fullname, stored_password, stored_ID, stored_role);
+    #endif
+
+    if (user_exists && Auth::verify_password(inp_password, stored_password))
     {
         std::unique_ptr<User> user;
 
@@ -52,6 +58,7 @@ std::unique_ptr<User> Auth::login(void)
     }
 
     std::cout << "Invalid username or password.\n";
+
     return nullptr;
 }
 
@@ -61,11 +68,22 @@ std::unique_ptr<User> Auth::create_account(void)
     string username, password, ID, confirm_password, role_sel;
     Roles role;
     const int options = ROLES_COUNT - 1;
+    bool unique = false;
 
     Input::get("Enter your first name: ", fullname.first, NAME_MAX, Input::valid_name);
     Input::get("Enter your last name: ", fullname.second, NAME_MAX, Input::valid_name);
 
-    Input::get("Enter your username: ", username, USERNAME_MAX, Input::valid_username);
+    do
+    {
+        Input::get("Enter your username: ", username, USERNAME_MAX, Input::valid_username);
+
+        unique = Input::is_username_unique(username);
+
+        if (!unique)
+        {
+            std::cerr << "Invalid username. Username \"" << username << "\" is already being used, please choose another one.\n";
+        }
+    } while (!unique);
 
     Input::get("Enter your password: ", password, PASSWORD_MAX, Input::valid_password);
 
@@ -85,7 +103,9 @@ std::unique_ptr<User> Auth::create_account(void)
         }
     }
     password = Auth::hash(password);
+
     ID = Auth::hash(username);
+    Storage::save_qr_id_to_csv(ID);
 
     Input::get("Roles:\n  1. Administrator\n  2. Manager\n  3. User\n"
                "Enter the number of the role that will be assigned to you: ", 
@@ -113,9 +133,13 @@ std::unique_ptr<User> Auth::create_account(void)
         break;
     }
 
-    Storage::save_user(*user);
+    #ifdef CSV_VER
+        Storage::save_user(*user);
+    #else
+        Storage::save_user_to_db(*user);
+    #endif
 
-    std::cout << "Your account has been created. You can now log in\n";
+    std::cout << "Your account has been created. You can now log in.\n";
 
     return user;
 }
