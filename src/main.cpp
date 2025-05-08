@@ -13,6 +13,7 @@ using std::cerr;
 using std::cin;
 
 AttendanceContainer attendance;
+UserVector users;
 
 int main(void)
 {
@@ -22,6 +23,12 @@ int main(void)
     size_t login_attempts = 0;
 
     std::unique_ptr<User> user = nullptr;
+
+    #ifdef CSV_VER
+        Storage::load_all_users();
+    #else
+        Storage::load_users_from_db();
+    #endif
 
     cout << "Welcome to the Attendance Management System.\n";
 
@@ -44,6 +51,12 @@ int main(void)
             {
                 User* raw_user = insert_into_attendance(std::move(user));
 
+                #ifdef CSV_VER
+                    Storage::load_attendance();
+                #else
+                    Storage::load_attendance_from_db();
+                #endif
+
                 raw_user->mark_attendance();
                 raw_user->display_menu();
 
@@ -54,7 +67,11 @@ int main(void)
                     raw_user->display_menu();
                 }
 
-                Storage::save_attendance();
+                #ifdef CSV_VER
+                    Storage::save_attendance();
+                #else
+                    Storage::save_attendance_to_db();
+                #endif
             }
             else
             {
