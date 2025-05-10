@@ -22,12 +22,12 @@ public:
     static bool save_user_attendance(const UserAttendance &user_att);
     static bool load_user_attendance(UserAttendance &user_att);
 
-    static bool save_all_users(void);
     static bool load_all_users(void);
     static bool save_attendance(void);
     static bool load_attendance(void);
 
     static void save_qr_id_to_csv(const std::string &id);
+    static User* search_user_by_username(const std::string &username);
 };
 
 #endif
