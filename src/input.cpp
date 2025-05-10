@@ -36,7 +36,7 @@ void Input::get(const std::string &prompt, std::string &input, size_t size,
             continue;
         }
 
-        if (input.length() >= size - 1) 
+        if (input.length() >= size) 
         {
             cerr << "Invalid input. Input may not exceed " << size - 1 << " characters." << endl;
             input.clear();
@@ -163,7 +163,7 @@ bool Input::valid_name(const std::string &name)
 {
     if (name.empty())
     {
-        cerr << "Invalid name. Name can not be blank, please enter a valid name.\n";
+        cerr << "ERROR: Invalid name. Name can not be blank, please enter a valid name.\n";
         return false;
     }
     if (isspace((unsigned char) name.at(0)))
@@ -208,6 +208,16 @@ bool Input::valid_password(const std::string &password)
     }
     // add other conditions for minimum password length, inclusion and restriction of characters, password strength, etc. 
 
+    return true;
+}
+
+bool Input::valid_date(const std::string &date)
+{
+    return true;
+}
+
+bool Input::valid_log_time(const std::string &log_time)
+{
     return true;
 }
 
