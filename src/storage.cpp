@@ -12,13 +12,22 @@ void Storage::save_user_to_db(const User &user)
 {
     sqlite3* db;
     sqlite3_open("ams.db", &db);
-    std::string sql = "INSERT INTO users (username, password, role) VALUES (?, ?, ?);";
+
+    const char* sql = R"(
+        INSERT INTO users (firstname, lastname, username, password, id, role)
+        VALUES (?, ?, ?, ?, ?, ?);
+    )";
 
     sqlite3_stmt* stmt;
-    sqlite3_prepare_v2(db, sql.c_str(), -1, &stmt, nullptr);
-    sqlite3_bind_text(stmt, 1, user.get_username().c_str(), -1, SQLITE_STATIC);
-    sqlite3_bind_text(stmt, 2, user.get_password().c_str(), -1, SQLITE_STATIC);
-    sqlite3_bind_text(stmt, 3, user.get_role_name().c_str(), -1, SQLITE_STATIC);
+    sqlite3_prepare_v2(db, sql, -1, &stmt, nullptr);
+
+    // Bind values from the User object
+    sqlite3_bind_text(stmt, 1, user.get_fullname().first.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 2, user.get_fullname().second.c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 3, user.get_username().c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 4, user.get_password().c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_text(stmt, 5, user.get_ID().c_str(), -1, SQLITE_STATIC);
+    sqlite3_bind_int(stmt, 6, static_cast<int>(user.get_role()));
 
     sqlite3_step(stmt);
     sqlite3_finalize(stmt);
@@ -318,23 +327,6 @@ bool Storage::load_user_attendance(UserAttendance &user_att)
     return true;
 }
 
-bool Storage::save_all_users(void)
-{
-    std::ofstream file(USER_FILE);
-    if (!file) return false;
-
-    for (const auto &user_att : attendance)
-    {
-        const User &user = *user_att.user;
-
-        file << user.get_fullname().first << ',' << user.get_fullname().second << ','
-             << user.get_username() << ',' << user.get_password() << ','
-             << user.get_ID() << ',' << static_cast<int>(user.get_role()) << '\n';
-    }
-
-    return true;
-}
-
 bool Storage::load_all_users(void)
 {
     std::ifstream file(USER_FILE);
@@ -346,43 +338,63 @@ bool Storage::load_all_users(void)
         std::istringstream ss(line);
         std::string role_str, id, username, fname, lname, password;
 
-        std::getline(ss, fname, ',');
-        std::getline(ss, lname, ',');
-        std::getline(ss, username, ',');
-        std::getline(ss, password, ',');
-        std::getline(ss, id, ',');
-        std::getline(ss, role_str);
+        if (!std::getline(ss, fname, ',')) continue;
+        if (!std::getline(ss, lname, ',')) continue;
+        if (!std::getline(ss, username, ',')) continue;
+        if (!std::getline(ss, password, ',')) continue;
+        if (!std::getline(ss, id, ',')) continue;
+        if (!std::getline(ss, role_str)) continue;
 
-        Roles role = static_cast<Roles>(std::stoi(role_str));
+        Roles role;
+        try {
+            role = (Roles) (std::stoi(role_str));
+        }
+        catch (const std::exception &e) {
+            std::cerr << "Invalid role value: " << role_str << " in line: " << line << '\n';
+            continue;
+        }
+
         Str_pair fullname = {fname, lname};
 
         std::unique_ptr<User> user;
+
         switch (role)
         {
         case ADMIN:
             user = std::make_unique<Admin>(fullname, username, password, id, role);
             break;
-
         case MANAGER:
             user = std::make_unique<Manager>(fullname, username, password, id, role);
             break;
-
         case USER:
             user = std::make_unique<User>(fullname, username, password, id, role);
             break;
-
         default:
             continue;
         }
 
-        // attendance.push_back(UserAttendance
-        //     {
-        //         std::move(user),
-        //         AttendanceRecord {}
-        //     }
-        // );
+        std::unique_ptr<User> attendance_user;
 
-        users.push_back(std::move(user));
+        switch (role)
+        {
+        case ADMIN:
+            attendance_user = std::make_unique<Admin>(*static_cast<Admin*>(user.get()));
+            break;
+        case MANAGER:
+            attendance_user = std::make_unique<Manager>(*static_cast<Manager*>(user.get()));
+            break;
+        case USER:
+            attendance_user = std::make_unique<User>(*user);
+            break;
+        default:
+            continue;
+        }
+
+        users.push_back(std::make_unique<User>(*user));
+        attendance.push_back(UserAttendance {
+            std::move(attendance_user),
+            AttendanceRecord{}
+        });
     }
 
     return true;
@@ -451,4 +463,15 @@ void Storage::save_qr_id_to_csv(const std::string &id)
     file << id << "\n";
 
     file.close();
+}
+
+User* Storage::search_user_by_username(const std::string &username)
+{
+    auto it = std::find_if(users.begin(), users.end(),
+        [&username](const std::unique_ptr<User> &user)
+        {
+            return user->get_username() == username;
+        });
+
+    return (it != users.end()) ? it->get() : nullptr;
 }
