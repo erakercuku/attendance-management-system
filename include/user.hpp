@@ -76,7 +76,7 @@ public:
     // void set_username(const std::string &username) { this->username = username; }
     // void set_password(const std::string &password) { this->password = password; }
     // void set_ID(const std::string &ID) { this->ID = ID; }
-    // void set_role(Roles role) { this->role = role; }
+    void set_role(Roles role) { this->role = role; }
 };
 
 class Manager : public User
@@ -95,7 +95,6 @@ public:
     using Manager::Manager;
 
     void display_menu(void) override;
-    void view_attendance(void) const override;
     void edit_attendance(void);
     void assign_roles(void);
 };
