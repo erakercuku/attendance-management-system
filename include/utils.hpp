@@ -16,10 +16,12 @@
 #define IS_LEAP_YEAR(year) ((year % 4 == 0 && (year % 100 != 0 || year % 400 == 0))? true : false)
 
 constexpr size_t NUM_MAX = 10;
-constexpr size_t NAME_MAX = 20;
+constexpr size_t NAME_MAX = 21;
 constexpr size_t USERNAME_MAX = 254;
-constexpr size_t PASSWORD_MAX = 32;
+constexpr size_t PASSWORD_MAX = 33;
 constexpr size_t PASSWORD_MIN = 8;
+constexpr size_t DATE_MAX = 11;
+constexpr size_t LOGIN_MAX = 6;
 constexpr size_t LOGIN_ATTEMPTS_MAX = 3;
 
 // defines the Str_pair type 
