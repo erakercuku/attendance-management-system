@@ -18,6 +18,8 @@ public:
     static bool valid_name(const std::string &name);
     static bool valid_username(const std::string &username);
     static bool valid_password(const std::string &password);
+    static bool valid_date(const std::string &date);
+    static bool valid_log_time(const std::string &log_time);
 
     static bool is_username_unique(const std::string &username);
 };
