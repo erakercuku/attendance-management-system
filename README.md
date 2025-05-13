@@ -8,7 +8,7 @@ The Attendance Management System is developed and designed in such a way that it
 ### Authentication & User Management
 - User registration with input validation and credential creation
 - Secure login using hashed passwords and unique IDs
-- Role-based access control (Admin, Manager, Employee)
+- Role-based access control (Admin, Manager, User)
 - Admins can assign and modify user roles
 - Input validation for all credentials and roles
 
