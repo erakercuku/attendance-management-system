@@ -206,18 +206,20 @@ bool Input::valid_password(const std::string &password)
         cerr << "Invalid password. Password can not start with a space, please enter a valid password.\n";
         return false;
     }
-    // add other conditions for minimum password length, inclusion and restriction of characters, password strength, etc. 
+    // add other conditions for minimum password length, restriction of characters, usage of special characters, password strength, etc. 
 
     return true;
 }
 
 bool Input::valid_date(const std::string &date)
 {
+    // add conditions that make the input align with the date format (YYYY-MM-DD) 
     return true;
 }
 
 bool Input::valid_log_time(const std::string &log_time)
 {
+    // add conditions that make the input align with the log time format (HH:MM) 
     return true;
 }
 
