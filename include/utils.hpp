@@ -18,6 +18,7 @@
 constexpr size_t NUM_MAX = 10;
 constexpr size_t NAME_MAX = 21;
 constexpr size_t USERNAME_MAX = 254;
+constexpr size_t USERNAME_MIN = 5;
 constexpr size_t PASSWORD_MAX = 33;
 constexpr size_t PASSWORD_MIN = 8;
 constexpr size_t DATE_MAX = 11;
