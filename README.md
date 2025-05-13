@@ -39,4 +39,3 @@ The Attendance Management System is developed and designed in such a way that it
 - **Python** – QR code generation and facial recognition
 - **MySQL** – Relational database for persistent data storage
 - **Shiny R App** – Analytics dashboard and report visualization
-- **Shell scripting / CRON** – Periodic backup automation
