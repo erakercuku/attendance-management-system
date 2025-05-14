@@ -39,30 +39,9 @@ The system follows a modular structure with distinct components:
 | Manual Edits          | Admins can edit login/logout records |
 | Data Recovery         | Restores from latest valid backup in case of crash |
 
+---
 
-
-## 4 Architecture Diagram
-
-  txt
-     +-------------+     +-----------------+     +---------------+
-     |  CLI (C++)  | <-->|   MySQL DB      |<--->| Backup System |
-     +-------------+     +-----------------+     +---------------+
-           |
-           v
-   +------------------+
-   | QR / Face Module |
-   |  (Python)        |
-   +------------------+
-           |
-           v
-     +-------------+
-     |  R Shiny    | <- Pulls data for analytics
-     +-------------+
-
-
-
-
-## 5. Technologies Used
+## 4. Technologies Used
 
 * **C++** – Main application logic, CLI
 * **Python** – QR code generation, face recognition
@@ -75,7 +54,7 @@ The system follows a modular structure with distinct components:
 
 ---
 
-## 6. Installation Instructions
+## 5. Installation Instructions
 
 ### Requirements
 
@@ -118,7 +97,7 @@ The system follows a modular structure with distinct components:
 
 ---
 
-## 7. How to Use
+## 6. How to Use
 
 ### As a User
 
@@ -136,7 +115,7 @@ The system follows a modular structure with distinct components:
 
 ---
 
-## 8. Developer Guide
+## 7. Developer Guide
 
 ### Key Notes
 
@@ -147,7 +126,7 @@ The system follows a modular structure with distinct components:
 
 ---
 
-## 9. Testing
+## 8. Testing
 
 * Input validation for registration (edge cases, invalid inputs)
 * Login attempts with wrong credentials
@@ -160,7 +139,7 @@ The system follows a modular structure with distinct components:
 
 ---
 
-## 10. Known Issues / Limitations
+## 9. Known Issues / Limitations
 
 * GUI is not fully connected to backend C++ code
 * Facial recognition has occasional false negatives
@@ -170,7 +149,7 @@ The system follows a modular structure with distinct components:
 
 ---
 
-## 11. Sprint History
+## 10. Sprint History
 
 ### Sprint 1: Foundation
 
@@ -193,7 +172,7 @@ The system follows a modular structure with distinct components:
 
 ---
 
-## 12. Contributors
+## 11. Contributors
 
 | Name         | Role                                         |
 | ------------ | -------------------------------------------- |
