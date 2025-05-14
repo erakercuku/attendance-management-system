@@ -216,7 +216,8 @@ void Storage::load_attendance_from_db(void)
         std::string expected_logout = reinterpret_cast<const char*>(sqlite3_column_text(stmt, 5));
 
         auto it = std::find_if(attendance.begin(), attendance.end(),
-            [&uname](const UserAttendance &ua) {
+            [&uname](const UserAttendance &ua)
+            {
                 return ua.user->get_username() == uname;
             });
 
@@ -238,12 +239,65 @@ void Storage::load_attendance_from_db(void)
 
 bool Storage::save_user(const User &user)
 {
-    std::ofstream file(USER_FILE, std::ios::app);
-    if (!file) return false;
+    std::ifstream infile(USER_FILE);
+    if (!infile) return false;
 
-    file << user.get_fullname().first << ',' << user.get_fullname().second << ','
-         << user.get_username() << ',' << user.get_password() << ','
-         << user.get_ID() << ',' << static_cast<int>(user.get_role()) << '\n';
+    std::vector<std::string> updated_lines;
+    std::string line;
+    bool user_found = false;
+
+    while (std::getline(infile, line))
+    {
+        std::istringstream ss(line);
+        std::string fname, lname, username, password, id, role_str;
+
+        if (!std::getline(ss, fname, ',')) continue;
+        if (!std::getline(ss, lname, ',')) continue;
+        if (!std::getline(ss, username, ',')) continue;
+        if (!std::getline(ss, password, ',')) continue;
+        if (!std::getline(ss, id, ',')) continue;
+        if (!std::getline(ss, role_str)) continue;
+
+        if (id == user.get_ID())
+        {
+            std::ostringstream updated;
+            updated << user.get_fullname().first << ','
+                    << user.get_fullname().second << ','
+                    << user.get_username() << ','
+                    << user.get_password() << ','
+                    << user.get_ID() << ','
+                    << static_cast<int>(user.get_role());
+            updated_lines.push_back(updated.str());
+            user_found = true;
+        }
+        else
+        {
+            updated_lines.push_back(line);
+        }
+    }
+
+    infile.close();
+
+    if (!user_found)
+    {
+        std::ostringstream new_entry;
+        new_entry << user.get_fullname().first << ','
+                  << user.get_fullname().second << ','
+                  << user.get_username() << ','
+                  << user.get_password() << ','
+                  << user.get_ID() << ','
+                  << static_cast<int>(user.get_role());
+
+        updated_lines.push_back(new_entry.str());
+    }
+
+    std::ofstream outfile(USER_FILE, std::ios::trunc);
+    if (!outfile) return false;
+
+    for (const auto &l : updated_lines)
+    {
+        outfile << l << '\n';
+    }
 
     return true;
 }
@@ -349,7 +403,8 @@ bool Storage::load_all_users(void)
         try {
             role = (Roles) (std::stoi(role_str));
         }
-        catch (const std::exception &e) {
+        catch (const std::exception &e)
+        {
             std::cerr << "Invalid role value: " << role_str << " in line: " << line << '\n';
             continue;
         }
@@ -391,10 +446,31 @@ bool Storage::load_all_users(void)
         }
 
         users.push_back(std::make_unique<User>(*user));
-        attendance.push_back(UserAttendance {
+        attendance.push_back(UserAttendance
+        {
             std::move(attendance_user),
             AttendanceRecord{}
         });
+    }
+
+    return true;
+}
+
+bool Storage::save_all_users(void)
+{
+    std::ofstream file(USER_FILE, std::ios::trunc);
+    if (!file) return false;
+
+    for (const auto &user_ptr : users)
+    {
+        if (!user_ptr) continue;
+
+        file << user_ptr->get_fullname().first << ',' 
+             << user_ptr->get_fullname().second << ','
+             << user_ptr->get_username() << ','
+             << user_ptr->get_password() << ','
+             << user_ptr->get_ID() << ','
+             << static_cast<int>(user_ptr->get_role()) << '\n';
     }
 
     return true;
