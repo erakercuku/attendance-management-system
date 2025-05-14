@@ -85,7 +85,7 @@ std::unique_ptr<User> Auth::create_account(void)
         }
     } while (!unique);
 
-    Input::get("Enter your password: ", password, PASSWORD_MAX, Input::valid_password);
+    Input::get("Enter your password: ", password, PASSWORD_MAX, Input::valid_password_create);
 
     while (true)
     {
