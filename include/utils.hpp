@@ -15,6 +15,9 @@
 // defines the macro used to determine if a given year is a leap year or not 
 #define IS_LEAP_YEAR(year) ((year % 4 == 0 && (year % 100 != 0 || year % 400 == 0))? true : false)
 
+// set of named values for the months of the year 
+enum Months {JAN = 1, FEB, MAR, APR, MAY, JUN, JUL, AUG, SEP, OCT, NOV, DEC};
+
 constexpr size_t NUM_MAX = 10;
 constexpr size_t NAME_MAX = 21;
 constexpr size_t USERNAME_MAX = 254;
@@ -29,4 +32,3 @@ constexpr size_t LOGIN_ATTEMPTS_MAX = 3;
 using Str_pair = std::pair<std::string, std::string>;
 
 #endif
-
