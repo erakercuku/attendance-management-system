@@ -130,7 +130,7 @@ void User::view_attendance(void) const
 
     if (it == attendance.end())
     {
-        std::cout << "No attendance record found.\n";
+        std::cout << "No attendance record found.\n\n";
         return;
     }
 
@@ -142,6 +142,7 @@ void User::view_attendance(void) const
         std::cout << "  Expected Login: " << log.expected_login << '\n';
         std::cout << "  Expected Logout:" << log.expected_logout << '\n';
     }
+    std::cout << '\n';
 }
 
 void Manager::view_attendance(void) const
@@ -161,11 +162,12 @@ void Manager::view_attendance(void) const
             std::cout << "    Expected Logout:" << log.expected_logout << '\n';
         }
     }
+    std::cout << '\n';
 }
 
 void Manager::get_analytics(void) const
 {
-    std::cout << "[Linking to R analytics interface...]\n";
+    std::cout << "Linking to R analytics interface...\n";
     std::cout << "Opening external dashboard for attendance reports.\n";
 }
 
@@ -336,17 +338,30 @@ bool User::logout(void)
     if (tolower(confirmation.at(0)) == 'n')
     {
         std::cout << "Logout cancelled, returning to menu.\n";
+        return false;
+    }
+
+    std::cout << "See you soon " << fullname.first << "!\n" 
+              << "Logging out...\n";
+
+    mark_attendance();
+
+    if (role == ADMIN)
+    {
+        if (!Storage::save_all_users())
+        {
+            std::cerr << "Failed to save users to file.\n";
+        }
     }
     else
     {
-        std::cout << "See you soon " << fullname.first << "!\n" 
-                    << "Logging out...\n";
-
-        mark_attendance();
-        return true;
+        if (!Storage::save_user(*this))
+        {
+            std::cerr << "Failed to save user to file.\n";
+        }
     }
 
-    return false;
+    return true;
 }
 
 string User::get_role_name(void) const
