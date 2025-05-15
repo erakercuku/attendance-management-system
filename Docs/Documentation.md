@@ -83,8 +83,8 @@ The system follows a modular structure with distinct components:
 4. Run the C++ application:
 
    ```bash
-   g++ -o attendance main.cpp
-   ./attendance
+   make project
+   ./project
    ```
 
 5. Run the Shiny GUI (if installed):
