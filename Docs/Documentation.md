@@ -1,5 +1,5 @@
 
-## Attendance Management System – Complete Documentation
+## Attendance Management System – Documentation
 
 ---
 
