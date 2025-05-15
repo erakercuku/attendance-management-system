@@ -1,5 +1,3 @@
-# === Backup and Restore Features for Attendance Management System ===
-
 import os
 import csv
 from datetime import datetime
