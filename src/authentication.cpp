@@ -1,6 +1,7 @@
 #include "authentication.hpp"
 #include "storage.hpp"
 #include "input.hpp"
+#include "qr_code.hpp"
 #include <iostream>
 #include <sstream>
 #include <vector>
@@ -61,6 +62,15 @@ std::unique_ptr<User> Auth::login(void)
 
     return nullptr;
 }
+
+std::unique_ptr<User> Auth::login_with_qr(void)
+{
+    std::cout << "Opening camera...\n";
+    std::cout << "Failed to open camera module. Please login manually.\n";    
+
+    return nullptr;
+}
+
 
 std::unique_ptr<User> Auth::create_account(void)
 {
@@ -138,6 +148,8 @@ std::unique_ptr<User> Auth::create_account(void)
     #else
         Storage::save_user_to_db(*user);
     #endif
+
+    generate_and_show_qr(ID);
 
     std::cout << "Your account has been created. You can now log in.\n";
 
