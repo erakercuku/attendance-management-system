@@ -6,6 +6,7 @@
 #include "input.hpp"
 #include <iostream>
 #include <algorithm>
+#include <windows.h>
 
 using std::string;
 
@@ -168,7 +169,23 @@ void Manager::view_attendance(void) const
 void Manager::get_analytics(void) const
 {
     std::cout << "Linking to R analytics interface...\n";
-    std::cout << "Opening external dashboard for attendance reports.\n";
+    std::cout << "Opening external dashboard for attendance reports...\n";
+
+    std::string command = "Rscript -e \"shiny::runApp('AnalyticsVisualization', launch.browser=TRUE)\"";
+
+    STARTUPINFOA si = { sizeof(STARTUPINFOA) };
+    PROCESS_INFORMATION pi;
+
+    if (CreateProcessA(NULL, (LPSTR)command.c_str(), NULL, NULL, FALSE, CREATE_NO_WINDOW, NULL, NULL, &si, &pi))
+    {
+        std::cout << "Analytics dashboard launched successfully.\n";
+        CloseHandle(pi.hProcess);
+        CloseHandle(pi.hThread);
+    }
+    else
+    {
+        std::cerr << "Failed to launch the analytics dashboard.\n";
+    }
 }
 
 void Admin::edit_attendance(void)
