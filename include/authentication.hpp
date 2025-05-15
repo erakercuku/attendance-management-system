@@ -9,6 +9,7 @@ class Auth
 {
 public:
     static std::unique_ptr<User> login(void);
+    static std::unique_ptr<User> login_with_qr(void);
     static std::unique_ptr<User> create_account(void);
 
     static const std::string hash(const std::string &original);
