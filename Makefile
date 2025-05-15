@@ -1,13 +1,13 @@
 CXX = g++
 CXXFLAGS = -Iinclude -Wall
 LDLIBS = -lsqlite3
-SRC = src/main.cpp src/user.cpp src/authentication.cpp src/storage.cpp src/time.cpp src/input.cpp
+SRC = src/main.cpp src/user.cpp src/authentication.cpp src/storage.cpp src/time.cpp src/input.cpp src/qr_code.cpp src/qr/qrcodegen.cpp
 OBJ = $(SRC:.cpp=.o)
 TARGET = project
 CSV_TARGET = csv_project
 RM = del /f
 
-all: $(TARGET) $(CSV_TARGET)
+all: $(TARGET)
 
 $(CSV_TARGET): CXXFLAGS += -DCSV_VER
 
