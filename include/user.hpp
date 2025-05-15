@@ -11,15 +11,17 @@ enum Roles {ADMIN = 1, MANAGER, USER, ROLES_COUNT};
 enum Login_opt
 {
     LOGIN = 1,
-    CREATE_ACCOUNT = 2,
-    EXIT = 3,
+    LOGIN_QR = 2, 
+    CREATE_ACCOUNT = 3,
+    EXIT = 4,
     LOGIN_OPT_COUNT
 };
 
 enum User_menu_opt
 {
     VIEW = 1, 
-    LOGOUT = 2, 
+    QR_CODE = 2, 
+    LOGOUT = 3, 
     USER_OPT_COUNT
 };
 
@@ -27,7 +29,8 @@ enum Manager_menu_opt
 {
     M_VIEW = 1, 
     M_ANALYTICS = 2, 
-    M_LOGOUT = 3, 
+    M_QR_CODE = 3, 
+    M_LOGOUT = 4, 
     MANAGER_OPT_COUNT
 };
 
@@ -37,7 +40,8 @@ enum Admin_menu_opt
     EDIT = 2, 
     A_ANALYTICS = 3, 
     ASSIGN_ROLE = 4, 
-    A_LOGOUT = 5, 
+    A_QR_CODE = 5, 
+    A_LOGOUT = 6, 
     ADMIN_OPT_COUNT
 };
 
