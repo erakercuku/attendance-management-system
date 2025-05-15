@@ -25,7 +25,7 @@ library(scales)
 library(plotly)
 library(forcats)
 library(DT)
-
+source("plot_functions.R")
 
 # ------------------------------
 # DUMMY DATA INITIALIZATION
