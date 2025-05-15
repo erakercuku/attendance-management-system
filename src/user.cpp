@@ -4,6 +4,7 @@
 #include "storage.hpp"
 #include "time.hpp"
 #include "input.hpp"
+#include "qr_code.hpp"
 #include <iostream>
 #include <algorithm>
 #include <windows.h>
@@ -18,7 +19,7 @@ void User::display_menu(void)
     while (true)
     {
         Input::get("Menu options:\n"
-                   "  1. View attendance logs\n  2. Logout\n"
+                   "  1. View attendance logs\n  2. View QR code\n  3. Logout\n"
                    "Enter the number of the option you want to perform: ",
                    input, NUM_MAX, options, Input::valid_opt);
 
@@ -28,6 +29,10 @@ void User::display_menu(void)
         {
         case VIEW:
             view_attendance();
+            break;
+
+        case QR_CODE:
+            generate_and_show_qr(ID);
             break;
 
         case LOGOUT:
@@ -49,7 +54,7 @@ void Manager::display_menu(void)
     {
         Input::get("Manager Menu:\n"
                    "  1. View attendance logs\n  2. View analytics and reports\n"
-                   "  3. Logout\n"
+                   "  3. View QR code\n  4. Logout\n"
                    "Enter the number of the option you want to perform: ",
                    input, NUM_MAX, options, Input::valid_opt);
 
@@ -63,6 +68,10 @@ void Manager::display_menu(void)
 
         case M_ANALYTICS:
             get_analytics();
+            break;
+
+        case M_QR_CODE:
+            generate_and_show_qr(ID);
             break;
 
         case M_LOGOUT:
@@ -85,7 +94,7 @@ void Admin::display_menu(void)
         Input::get("Admin Menu:\n"
                    "  1. View attendance logs\n  2. Edit attendance logs\n"
                    "  3. View analytics and reports\n  4. Assign/modify roles\n"
-                   "  5. Logout\n"
+                   "  5. View QR code\n  6. Logout\n"
                    "Enter the number of the option you want to perform: ",
                    input, NUM_MAX, options, Input::valid_opt);
 
@@ -107,6 +116,10 @@ void Admin::display_menu(void)
 
         case ASSIGN_ROLE:
             assign_roles();
+            break;
+
+        case A_QR_CODE:
+            generate_and_show_qr(ID);
             break;
 
         case A_LOGOUT:
